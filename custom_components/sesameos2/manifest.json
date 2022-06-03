@@ -1,0 +1,17 @@
+{
+  "domain": "sesameos2",
+  "name": "Sesame OS2",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/sesameos2",
+  "requirements": [
+    "pysesameos2==0.0.5"
+  ],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@konikoni428"
+  ],
+  "iot_class": "local_push"
+}
