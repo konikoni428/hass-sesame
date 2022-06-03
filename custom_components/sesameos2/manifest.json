@@ -1,6 +1,7 @@
 {
   "domain": "sesameos2",
   "name": "Sesame OS2",
+  "version": "0.0.1",
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/sesameos2",
   "requirements": [
