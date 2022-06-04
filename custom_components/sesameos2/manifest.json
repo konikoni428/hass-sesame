@@ -5,7 +5,7 @@
   "config_flow": true,
   "documentation": "https://www.home-assistant.io/integrations/sesameos2",
   "requirements": [
-    "pysesameos2==0.0.5"
+    "git+https://github.com/konikoni428/pysesameos2.git@9e97eedcf3f3b837e6cac3228cf0e2188088bd51"
   ],
   "ssdp": [],
   "zeroconf": [],
