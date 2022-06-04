@@ -50,7 +50,7 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
 
     device_key = CHDeviceKey()
     device_key.setSecretKey(data["secret_key"])
-    device_key.setSesame2PublicKey("pub_key")
+    device_key.setSesame2PublicKey(data["pub_key"])
     device.setKey(device_key)
 
     try:
