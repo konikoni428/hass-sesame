@@ -1,7 +1,7 @@
 """Support for Sesame, by CANDY HOUSE."""
 from __future__ import annotations
 
-from pysesameos2.ble import CHSesame2
+from pysesameos2.chsesame2 import CHSesame2
 
 from homeassistant.components.lock import LockEntity
 from homeassistant.config_entries import ConfigEntry

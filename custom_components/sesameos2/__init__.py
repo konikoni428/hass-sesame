@@ -1,8 +1,9 @@
 """The Sesame OS2 integration."""
 from __future__ import annotations
 
-from pysesameos2.ble import CHBleManager, CHSesame2
+from pysesameos2.ble import CHBleManager
 from pysesameos2.device import CHDeviceKey
+from pysesameos2.chsesame2 import CHSesame2
 
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
