@@ -44,7 +44,7 @@ class Sesame2Device(LockEntity):
         self.hass: HomeAssistant = hass
 
         # Cached properties from pysesame object.
-        self._attr_unique_id: str | None = sesame.deviceId.replace("-", "")
+        self._attr_unique_id: str | None = sesame.getDeviceUUID().replace("-", "")
         # self._attr_is_locked = sesame.mechStatus.isInLockRange()
         self._battery: int | None = None
         self.hass.async_add_executor_job(self.init_update)
