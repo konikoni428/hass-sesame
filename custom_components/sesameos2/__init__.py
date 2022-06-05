@@ -30,8 +30,6 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device_key.setSesame2PublicKey(config["pub_key"])
     device.setKey(device_key)
 
-    await device.connect()
-    await device.wait_for_login()
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = device

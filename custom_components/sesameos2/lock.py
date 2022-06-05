@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 from pysesameos2.chsesame2 import CHSesame2
+from pysesameos2.device import CHDevices
 
 from homeassistant.components.lock import LockEntity
 from homeassistant.config_entries import ConfigEntry
@@ -30,7 +31,10 @@ async def async_setup_entry(
     sesame = hass.data[DOMAIN][entry.entry_id]
     locks = []
 
-    locks.append(Sesame2Device(hass, sesame))
+    s2d = Sesame2Device(hass, sesame)
+    await s2d.async_setup()
+
+    locks.append(s2d)
 
     async_add_entities(locks)
 
@@ -47,8 +51,15 @@ class Sesame2Device(LockEntity):
         self._attr_unique_id: str | None = sesame.getDeviceUUID().replace("-", "")
         # self._attr_is_locked = sesame.mechStatus.isInLockRange()
         self._battery: int | None = None
+
+
+    async def async_setup(self) -> None:
+        self._sesame.setDeviceStatusCallback(self._callback)
+
+        await self._sesame.connect()
+        await self._sesame.wait_for_login()
+
         self.hass.async_add_executor_job(self.init_update)
-        self.hass.async_add_executor_job(sesame.setDeviceStatusCallback, self._callback)
 
     async def async_lock(self, **kwargs) -> None:
         """Lock the lock."""
@@ -59,7 +70,7 @@ class Sesame2Device(LockEntity):
         await self._sesame.unlock(history_tag="hass.io")
 
     @callback
-    def _callback(self, device: CHSesame2) -> None:
+    def _callback(self, device: CHDevices) -> None:
         """Handle status update received."""
         status = device.getMechStatus()
         self._attr_is_locked = status.isInLockRange()
