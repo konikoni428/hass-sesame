@@ -62,10 +62,14 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     # throw CannotConnect
     # If the authentication is wrong:
     # InvalidAuth
+    uuid = device.getDeviceUUID()
     await device.disconnect()
 
     # Return info that you want to store in the config entry.
-    return {"title": "Sesame OS2"}
+    return {
+        "title": "Sesame OS2",
+        "UUID": uuid,
+    }
 
 
 class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
@@ -94,7 +98,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
         else:
-            await self.async_set_unique_id(user_input["mac_address"].replace(":", ""))
+            await self.async_set_unique_id(info["uuid"].replace("-", ""))
             return self.async_create_entry(title=info["title"], data=user_input)
 
         return self.async_show_form(

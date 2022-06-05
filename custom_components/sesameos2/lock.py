@@ -51,7 +51,7 @@ class Sesame2Device(LockEntity):
         self._attr_unique_id: str | None = sesame.getDeviceUUID().replace("-", "")
         # self._attr_is_locked = sesame.mechStatus.isInLockRange()
         self._battery: int | None = None
-
+        self.entity_id = f"sesameos2.lock.{self._attr_unique_id}"
 
     async def async_setup(self) -> None:
         self._sesame.setDeviceStatusCallback(self._callback)
