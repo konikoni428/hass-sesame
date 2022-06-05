@@ -50,21 +50,13 @@ class Sesame2Device(LockEntity):
         self.hass.async_add_executor_job(self.init_update)
         self.hass.async_add_executor_job(sesame.setDeviceStatusCallback, self._callback)
 
-    def lock(self, **kwargs) -> None:
-        """Lock the lock."""
-        self._sesame.lock()
-
     async def async_lock(self, **kwargs) -> None:
         """Lock the lock."""
-        await self.hass.async_add_executor_job(self._sesame.lock)
-
-    def unlock(self, **kwargs) -> None:
-        """Unlock the lock."""
-        self._sesame.unlock()
+        await self._sesame.lock(history_tag="hass.io")
 
     async def async_unlock(self, **kwargs) -> None:
         """Unlock the lock."""
-        await self.hass.async_add_executor_job(self._sesame.unlock)
+        await self._sesame.unlock(history_tag="hass.io")
 
     @callback
     def _callback(self, device: CHSesame2) -> None:
