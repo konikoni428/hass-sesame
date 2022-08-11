@@ -1,0 +1,16 @@
+{
+  "domain": "pysesame3",
+  "name": "PySesame3",
+  "version": "0.0.1",
+  "config_flow": true,
+  "documentation": "https://www.home-assistant.io/integrations/pysesame3",
+  "requirements": [],
+  "ssdp": [],
+  "zeroconf": [],
+  "homekit": {},
+  "dependencies": [],
+  "codeowners": [
+    "@konikoni428"
+  ],
+  "iot_class": "cloud_push"
+}
