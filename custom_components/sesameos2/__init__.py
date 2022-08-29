@@ -23,7 +23,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     config = entry.data
     device = await CHBleManager().scan_by_address(
-        ble_device_identifier=config["mac_address"], scan_duration=15
+        ble_device_identifier=config["mac_address"], scan_duration=30
     )
     if device is None:
         raise RuntimeError("Device Not Found")
