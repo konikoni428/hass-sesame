@@ -57,19 +57,14 @@ class Sesame2Device(LockEntity):
         self._battery: int | None = None
         self.entity_id = f"sesameos2.{self._attr_unique_id}"
 
-    async def async_setup(self) -> None:
-        retry = 10
-        while retry > 0:
+    async def async_setup(self) -> None:        
+        while self._sesame.getDeviceStatus().value == CHDeviceLoginStatus.UnLogin:
             try:
                 await self._sesame.connect()
                 await self._sesame.wait_for_login()
-                break
             except (BleakDBusError,BleakError):
-                retry -= 1
-                continue
-        
-        if self._sesame.getDeviceStatus().value == CHDeviceLoginStatus.UnLogin:
-            raise RuntimeError("[SESAME]Login Error")
+                pass
+                # raise RuntimeError("[SESAME]Login Error")
         
         self._sesame.setDeviceStatusCallback(self._callback)
         self.hass.async_add_executor_job(self.init_update)
