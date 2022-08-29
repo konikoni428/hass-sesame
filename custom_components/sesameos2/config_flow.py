@@ -8,6 +8,9 @@ import voluptuous as vol
 
 from pysesameos2.ble import CHBleManager
 from pysesameos2.device import CHDeviceKey
+from pysesameos2.const import CHDeviceLoginStatus
+
+from bleak.exc import BleakDBusError, BleakError
 
 from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
@@ -48,20 +51,39 @@ async def validate_input(hass: HomeAssistant, data: dict[str, Any]) -> dict[str,
     except ConnectionRefusedError:
         raise CannotConnect
 
+    if device is None:
+        raise CannotConnect
+
     device_key = CHDeviceKey()
     device_key.setSecretKey(data["secret_key"])
     device_key.setSesame2PublicKey(data["pub_key"])
     device.setKey(device_key)
 
-    try:
-        await device.connect()
-        await device.wait_for_login()
-    except RuntimeError:
-        raise InvalidAuth
+    retry = 10
+    while retry > 0:
+        try:
+            await device.connect()
+            await device.wait_for_login()
+            break
+        except RuntimeError:
+            raise InvalidAuth
+        except (BleakDBusError,BleakError):
+            retry -= 1
+            continue
+    # try:
+    #     await device.connect()
+    #     await device.wait_for_login()
+    # except RuntimeError:
+    #     raise InvalidAuth
     # If you cannot connect:
     # throw CannotConnect
     # If the authentication is wrong:
     # InvalidAuth
+
+    if device.getDeviceStatus().value == CHDeviceLoginStatus.UnLogin:
+        _LOGGER.info("[SESAME]Login Failed")
+        raise InvalidAuth
+
     uuid = device.getDeviceUUID()
     await device.disconnect()
 
@@ -98,7 +120,7 @@ class ConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             _LOGGER.exception("Unexpected exception")
             errors["base"] = "unknown"
         else:
-            await self.async_set_unique_id(info["uuid"].replace("-", ""))
+            await self.async_set_unique_id(info["UUID"].replace("-", ""))
             return self.async_create_entry(title=info["title"], data=user_input)
 
         return self.async_show_form(

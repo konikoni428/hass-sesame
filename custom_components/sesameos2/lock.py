@@ -1,8 +1,12 @@
 """Support for Sesame, by CANDY HOUSE."""
 from __future__ import annotations
+import asyncio
 
 from pysesameos2.chsesame2 import CHSesame2
 from pysesameos2.device import CHDevices
+from pysesameos2.const import CHDeviceLoginStatus, CHSesame2Status
+
+from bleak.exc import BleakDBusError, BleakError
 
 from homeassistant.components.lock import LockEntity
 from homeassistant.config_entries import ConfigEntry
@@ -51,14 +55,23 @@ class Sesame2Device(LockEntity):
         self._attr_unique_id: str | None = sesame.getDeviceUUID().replace("-", "")
         # self._attr_is_locked = sesame.mechStatus.isInLockRange()
         self._battery: int | None = None
-        self.entity_id = f"sesameos2.lock.{self._attr_unique_id}"
+        self.entity_id = f"sesameos2.{self._attr_unique_id}"
 
     async def async_setup(self) -> None:
+        retry = 10
+        while retry > 0:
+            try:
+                await self._sesame.connect()
+                await self._sesame.wait_for_login()
+                break
+            except (BleakDBusError,BleakError):
+                retry -= 1
+                continue
+        
+        if self._sesame.getDeviceStatus().value == CHDeviceLoginStatus.UnLogin:
+            raise RuntimeError("[SESAME]Login Error")
+        
         self._sesame.setDeviceStatusCallback(self._callback)
-
-        await self._sesame.connect()
-        await self._sesame.wait_for_login()
-
         self.hass.async_add_executor_job(self.init_update)
 
     async def async_lock(self, **kwargs) -> None:
@@ -72,7 +85,14 @@ class Sesame2Device(LockEntity):
     @callback
     def _callback(self, device: CHDevices) -> None:
         """Handle status update received."""
+        if device.getDeviceStatus() == CHSesame2Status.NoBleSignal:
+            return asyncio.run_coroutine_threadsafe(
+                self.async_setup(), self.hass.loop
+            )
+
         status = device.getMechStatus()
+        if status is None:
+            return
         self._attr_is_locked = status.isInLockRange()
         self._battery = status.getBatteryPercentage()
         self.async_write_ha_state()

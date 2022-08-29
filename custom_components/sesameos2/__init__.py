@@ -25,6 +25,8 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     device = await CHBleManager().scan_by_address(
         ble_device_identifier=config["mac_address"], scan_duration=15
     )
+    if device is None:
+        raise RuntimeError("Device Not Found")
     device_key = CHDeviceKey()
     device_key.setSecretKey(config["secret_key"])
     device_key.setSesame2PublicKey(config["pub_key"])
